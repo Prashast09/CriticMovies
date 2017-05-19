@@ -1,9 +1,11 @@
 package com.example.earthshaker.criticmovies.common.service;
 
+import com.example.earthshaker.criticmovies.model.ConfigurationResponse;
+import com.example.earthshaker.criticmovies.model.MoviesConfig;
 import io.reactivex.Observable;
 import java.util.List;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by earthshaker on 5/18/17.
@@ -11,15 +13,10 @@ import retrofit2.http.Path;
 
 public interface MovieApiService {
 
-  @GET("/repos/{owner}/{repo}/contributors") Observable<List<Contributor>> contributors(
-      @Path("owner") String owner, @Path("repo") String repo);
 
-  @GET("/repos/{owner}/{repo}/contributors")
-  List<Contributor> getContributors(@Path("owner") String owner, @Path("repo") String repo);
+  @GET("configuration") Observable<ConfigurationResponse> getConfiguration(
+      @Query("api_key") String apiKey);
 
-  @GET("/users/{user}")
-  Observable<User> user(@Path("user") String user);
-
-  @GET("/users/{user}")
-  User getUser(@Path("user") String user);
+  @GET("discover/movie") Observable<List<MoviesConfig>> getMovies(@Query("api_key") String apiKey,
+      @Query("page") Integer page);
 }
