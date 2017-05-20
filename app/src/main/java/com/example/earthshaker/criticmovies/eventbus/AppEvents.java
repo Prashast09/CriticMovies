@@ -2,7 +2,6 @@ package com.example.earthshaker.criticmovies.eventbus;
 
 import com.example.earthshaker.criticmovies.model.ConfigurationResponse;
 import com.example.earthshaker.criticmovies.model.MoviesConfig;
-import java.util.List;
 
 /**
  * Created by earthshaker on 5/19/17.
@@ -22,14 +21,16 @@ public class AppEvents {
   }
 
   public static class FetchMovies {
-    List<MoviesConfig> moviesConfigs;
+    MoviesConfig moviesConfig;
 
-    public FetchMovies(List<MoviesConfig> moviesConfigs) {
-      this.moviesConfigs = moviesConfigs;
+    public FetchMovies(MoviesConfig moviesConfig) {
+
+      this.moviesConfig = moviesConfig;
     }
 
-    public List<MoviesConfig> getMoviesConfigs() {
-      return moviesConfigs;
+    public MoviesConfig getMoviesConfig() {
+      return moviesConfig;
     }
   }
+
 }

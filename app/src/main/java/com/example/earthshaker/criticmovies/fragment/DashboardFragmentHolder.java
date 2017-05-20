@@ -1,5 +1,6 @@
 package com.example.earthshaker.criticmovies.fragment;
 
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Color;
@@ -7,13 +8,17 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.example.earthshaker.criticmovies.R;
 import com.example.earthshaker.criticmovies.adapter.DashboardFragmentAdapter;
 import com.example.earthshaker.criticmovies.common.di.master.ComponentFactory;
 import com.example.earthshaker.criticmovies.common.service.MovieApiService;
 import com.example.earthshaker.criticmovies.eventbus.AppEvents;
+import com.example.earthshaker.criticmovies.model.Movies;
 import com.example.earthshaker.criticmovies.model.MoviesConfig;
 import de.greenrobot.event.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -35,14 +40,14 @@ public class DashboardFragmentHolder {
   @Inject @Named("componentName") ComponentName componentName;
   @Inject @Named("httpService") MovieApiService movieApiService;
   private String mTitle;
-  private CompositeDisposable compositeDisposable;
+  private CompositeDisposable compositeDisposable = new CompositeDisposable();
   private DashboardFragmentAdapter dashboardFragmentAdapter;
   private RecyclerView movieRecyclerView;
   private SwipeRefreshLayout swipeContainer;
   private ProgressBar progressBar;
   private int adapterView;
-  private List<MoviesConfig> moviesConfigs;
-  private int pastVisiblesItems, visibleItemCount, totalItemCount, mPage;
+  private List<Movies> moviesList;
+  private int pastVisiblesItems, visibleItemCount, totalItemCount, mPage = 1;
 
   public DashboardFragmentHolder(View view, String title) {
     movieRecyclerView = (RecyclerView) view.findViewById(R.id.movieListView);
@@ -50,8 +55,9 @@ public class DashboardFragmentHolder {
     progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
     mTitle = title;
     initializeData();
-    moviesConfigs = new ArrayList<>();
-    dashboardFragmentAdapter = new DashboardFragmentAdapter(adapterView, moviesConfigs, mTitle);
+    moviesList = new ArrayList<>();
+    registerEventBus();
+    dashboardFragmentAdapter = new DashboardFragmentAdapter(adapterView, moviesList, mTitle);
     setupSwipeToRefresh();
     setView();
     getDefaultMoviesFromServer();
@@ -59,7 +65,7 @@ public class DashboardFragmentHolder {
   }
 
   public void registerEventBus() {
-    EventBus.getDefault().post(this);
+    EventBus.getDefault().register(this);
   }
 
   public void unRegisterEventBus() {
@@ -69,22 +75,12 @@ public class DashboardFragmentHolder {
 
   public void onEventMainThread(AppEvents.FetchMovies event) {
     stopRefreshingData();
-    if (mPage == 1) moviesConfigs.clear();
-    moviesConfigs.addAll(event.getMoviesConfigs());
-    setDataToRecyclerView(moviesConfigs);
+    if (mPage == 1) moviesList.clear();
+    moviesList.addAll(event.getMoviesConfig().getMoviesList());
+    setDataToRecyclerView(moviesList);
   }
 
-  private void setDataToRecyclerView(List<MoviesConfig> moviesConfigList) {
-    if (moviesConfigList != null && moviesConfigList.size() > 0) {
-      swipeContainer.setVisibility(View.VISIBLE);
-      dashboardFragmentAdapter.setData(moviesConfigList, mTitle);
-    } else {
-      swipeContainer.setVisibility(View.GONE);
-      progressBar.setVisibility(View.GONE);
-    }
-  }
-
- /* void setupSearch(MenuItem searchItem, SearchView searchView, SearchManager searchManager) {
+  void setupSearch(MenuItem searchItem, SearchView searchView, SearchManager searchManager) {
     setupComponent();
     searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName));
     searchView.setQueryHint("Search Movies");
@@ -95,7 +91,7 @@ public class DashboardFragmentHolder {
       searchView.setQuery("", false);
       searchView.setIconified(true);
       searchItem.collapseActionView();
-      setDataToRecyclerView(movieList);
+      setDataToRecyclerView(moviesList);
     });
 
     searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -104,13 +100,23 @@ public class DashboardFragmentHolder {
       }
 
       @Override public boolean onQueryTextChange(String query) {
-        if (!StringUtils.isBlank(query)) {
-          setDataToRecyclerView(offerUtils.searchInOffersList(query, movieList));
+        if (!query.isEmpty() && query.length() > 3) {
+          searchMovies(query);
         }
         return false;
       }
     });
-  }*/
+  }
+
+  private void setDataToRecyclerView(List<Movies> moviesList) {
+    if (moviesList != null && moviesList.size() > 0) {
+      swipeContainer.setVisibility(View.VISIBLE);
+      dashboardFragmentAdapter.setData(moviesList, mTitle);
+    } else {
+      swipeContainer.setVisibility(View.GONE);
+      progressBar.setVisibility(View.GONE);
+    }
+  }
 
   private void setupRecyclerView() {
 
@@ -178,7 +184,7 @@ public class DashboardFragmentHolder {
     compositeDisposable.add(movieApiService.getMovies("ed75ba81d3a8253393684108406b8e26", page)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribeWith(new DisposableObserver<List<MoviesConfig>>() {
+        .subscribeWith(new DisposableObserver<MoviesConfig>() {
 
           @Override public void onComplete() {
           }
@@ -186,9 +192,28 @@ public class DashboardFragmentHolder {
           @Override public void onError(Throwable e) {
           }
 
-          @Override public void onNext(List<MoviesConfig> moviesConfigList) {
+          @Override public void onNext(MoviesConfig moviesConfigList) {
             EventBus.getDefault().post(new AppEvents.FetchMovies(moviesConfigList));
-            mPage = page;
+            mPage = moviesConfigList.getPage();
+          }
+        }));
+  }
+
+  private void searchMovies(String query) {
+    compositeDisposable.add(movieApiService.searchMovies("ed75ba81d3a8253393684108406b8e26", query)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeWith(new DisposableObserver<MoviesConfig>() {
+
+          @Override public void onComplete() {
+          }
+
+          @Override public void onError(Throwable e) {
+          }
+
+          @Override public void onNext(MoviesConfig moviesConfigList) {
+            EventBus.getDefault().post(new AppEvents.FetchMovies(moviesConfigList));
+            mPage = moviesConfigList.getPage();
           }
         }));
   }

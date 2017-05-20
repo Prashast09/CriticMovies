@@ -1,49 +1,61 @@
 package com.example.earthshaker.criticmovies.model;
 
-import com.google.gson.annotations.Expose;
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by earthshaker on 5/19/17.
  */
 
-public class MoviesConfig {
+public class MoviesConfig implements Parcelable {
 
-  @SerializedName("poster_path")
-  @Expose
-  private String posterPath;
+  public static final Parcelable.Creator<MoviesConfig> CREATOR =
+      new Parcelable.Creator<MoviesConfig>() {
+        @Override public MoviesConfig createFromParcel(Parcel source) {
+          return new MoviesConfig(source);
+        }
 
-  @SerializedName("overview")
-  @Expose
-  private String overview;
+        @Override public MoviesConfig[] newArray(int size) {
+          return new MoviesConfig[size];
+        }
+      };
+  @SerializedName("page") private int page;
+  @SerializedName("results") private List<Movies> moviesList;
 
-  @SerializedName("title")
-  @Expose
-  private String title;
-
-  public String getPosterPath() {
-    return posterPath;
+  public MoviesConfig() {
   }
 
-  public void setPosterPath(String posterPath) {
-    this.posterPath = posterPath;
+  protected MoviesConfig(Parcel in) {
+    this.page = in.readInt();
+    this.moviesList = new ArrayList<Movies>();
+    in.readList(this.moviesList, Movies.class.getClassLoader());
   }
 
-  public String getOverview() {
-    return overview;
+  @Override public int describeContents() {
+    return 0;
   }
 
-  public void setOverview(String overview) {
-    this.overview = overview;
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(this.page);
+    dest.writeList(this.moviesList);
   }
 
-  public String getTitle() {
-    return title;
+  public int getPage() {
+    return page;
   }
 
-  public void setTitle(String title) {
-    this.title = title;
+  public void setPage(int page) {
+    this.page = page;
   }
 
+  public List<Movies> getMoviesList() {
+    return moviesList;
+  }
+
+  public void setMoviesList(List<Movies> moviesList) {
+    this.moviesList = moviesList;
+  }
 }

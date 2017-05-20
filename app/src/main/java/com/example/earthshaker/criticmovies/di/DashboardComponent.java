@@ -2,6 +2,7 @@ package com.example.earthshaker.criticmovies.di;
 
 import com.example.earthshaker.criticmovies.activity.DashboardActivity;
 import com.example.earthshaker.criticmovies.activity.DashboardViewHolder;
+import com.example.earthshaker.criticmovies.adapter.DashboardFragmentAdapter;
 import com.example.earthshaker.criticmovies.fragment.DashboardBaseFragment;
 import com.example.earthshaker.criticmovies.fragment.DashboardFragmentHolder;
 import dagger.Subcomponent;
@@ -18,4 +19,6 @@ import dagger.Subcomponent;
   void inject(DashboardFragmentHolder dashboardFragmentHolder);
 
   void inject(DashboardBaseFragment dashboardBaseFragment);
+
+  void inject(DashboardFragmentAdapter dashboardFragmentAdapter);
 }

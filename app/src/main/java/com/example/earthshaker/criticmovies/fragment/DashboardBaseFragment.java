@@ -27,36 +27,41 @@ public class DashboardBaseFragment extends BaseFragment {
 
   @Override public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
     this.title = getArguments().getString("title");
+
   }
 
-  @Nullable @Override
+  @Override
   public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    setHasOptionsMenu(true);
-    return inflater.inflate(R.layout.fragment_dashboard, container, false);
+    View view = setupUI(inflater,container,R.layout.fragment_dashboard);
+    return view;
   }
 
   @Override protected void setupViewHolder(View view) {
     dashboardFragmentHolder = new DashboardFragmentHolder(view, title);
-    dashboardFragmentHolder.registerEventBus();
   }
 
   @Override public void onDetach() {
     super.onDetach();
    dashboardFragmentHolder.unRegisterEventBus();
+  }
 
+  @Override public void onPrepareOptionsMenu(Menu menu) {
+    super.onPrepareOptionsMenu(menu);
   }
 
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.menu_dashboard, menu);
     setupOptionMenu(menu);
+    super.onCreateOptionsMenu(menu, inflater);
   }
 
   @Override protected void setupComponent() {
     super.setupComponent();
   }
+
 
   public static DashboardBaseFragment newInstance(String title) {
     Bundle args = new Bundle();
@@ -68,10 +73,10 @@ public class DashboardBaseFragment extends BaseFragment {
 
   private void setupOptionMenu(Menu menu) {
     if (mActivity == null) return;
-    final MenuItem searchItem = menu.findItem(R.id.action_search_offers);
+    final MenuItem searchItem = menu.findItem(R.id.action_search_movies);
     final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
     SearchManager searchManager =
         (SearchManager) mActivity.getSystemService(Context.SEARCH_SERVICE);
-    /*dashboardFragmentHolder.setupSearch(searchItem, searchView, searchManager);*/
+    dashboardFragmentHolder.setupSearch(searchItem, searchView, searchManager);
   }
 }

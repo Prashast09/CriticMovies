@@ -10,7 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.earthshaker.criticmovies.R;
 import com.example.earthshaker.criticmovies.common.SharedPrefUtils;
-import com.example.earthshaker.criticmovies.model.MoviesConfig;
+import com.example.earthshaker.criticmovies.common.di.master.ComponentFactory;
+import com.example.earthshaker.criticmovies.model.Movies;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import javax.inject.Inject;
@@ -24,12 +25,13 @@ public class DashboardFragmentAdapter
 
   @Inject SharedPrefUtils sharedPrefUtils;
   @Inject Context context;
-  private List<MoviesConfig> moviesConfigs;
+  private List<Movies> moviesList;
   private int view;
   private String mTitle;
 
-  public DashboardFragmentAdapter(int view, List<MoviesConfig> moviesConfigList, String mTitle) {
-    moviesConfigs = moviesConfigList;
+  public DashboardFragmentAdapter(int view, List<Movies> moviesList, String mTitle) {
+    ComponentFactory.getInstance().getDashboardComponent().inject(this);
+    this.moviesList = moviesList;
     this.view = view;
     this.mTitle = mTitle;
   }
@@ -40,17 +42,18 @@ public class DashboardFragmentAdapter
     return new DashboardFragmentAdapterHolder(v);
   }
 
-  @Override public void onBindViewHolder(DashboardFragmentAdapterHolder holder, int position) {
-    final MoviesConfig moviesConfig = moviesConfigs.get(position);
-    holder.setViewData(moviesConfig);
+  @Override
+  public void onBindViewHolder(final DashboardFragmentAdapterHolder holder, final int position) {
+    Movies movies = moviesList.get(position);
+    holder.setViewData(movies);
   }
 
   @Override public int getItemCount() {
-    return 0;
+    return moviesList.size();
   }
 
-  public void setData(List<MoviesConfig> moviesConfigs, String mTitle) {
-    this.moviesConfigs = moviesConfigs;
+  public void setData(List<Movies> movies, String mTitle) {
+    this.moviesList = movies;
     this.mTitle = mTitle;
     notifyDataSetChanged();
   }
@@ -60,28 +63,36 @@ public class DashboardFragmentAdapter
     private ImageView movieLogo;
     private TextView movieTitle, movieDesc;
 
-    public DashboardFragmentAdapterHolder(View itemView) {
+    DashboardFragmentAdapterHolder(View itemView) {
       super(itemView);
       movieLogo = (ImageView) itemView.findViewById(R.id.movie_icon);
       movieTitle = (TextView) itemView.findViewById(R.id.movie_title);
       movieDesc = (TextView) itemView.findViewById(R.id.movie_detail);
     }
 
-    public void setViewData(MoviesConfig moviesConfig) {
-      String type;
-      String baseUrl = sharedPrefUtils.getStringDataByKey("baseUrl", null).concat("/");
-      if (mTitle.equals("List Views")) {
-        type = sharedPrefUtils.getStringDataByKey("logoSize", null);
-      } else {
-        type = sharedPrefUtils.getStringDataByKey("profileSize", null);
-      }
-      String imageUrl = baseUrl.concat(type);
+    void setViewData(Movies movies) {
+      if (movies != null) {
 
-      Picasso.with(context).load(imageUrl.concat(moviesConfig.getPosterPath())).into(movieLogo);
-      movieTitle.setText(moviesConfig.getTitle());
-      movieDesc.setText(moviesConfig.getOverview());
-      movieLogo.setOnClickListener(
-          l -> Toast.makeText(context, moviesConfig.getTitle(), Toast.LENGTH_SHORT).show());
+        String type;
+        String baseUrl = sharedPrefUtils.getStringDataByKey("baseUrl", null).concat("/");
+        if (mTitle.equals("List Views")) {
+          type = sharedPrefUtils.getStringDataByKey("logoSize", null);
+        } else {
+          type = sharedPrefUtils.getStringDataByKey("profileSize", null);
+        }
+        String imageUrl = baseUrl.concat(type);
+
+        if (movies.getPosterPath() != null) {
+          Picasso.with(context)
+              .load(imageUrl.concat(movies.getPosterPath()))
+              .placeholder(R.mipmap.ic_launcher_round)
+              .into(movieLogo);
+        }
+        movieTitle.setText(movies.getTitle());
+        movieDesc.setText(movies.getOverview());
+        movieLogo.setOnClickListener(
+            l -> Toast.makeText(context, movies.getTitle(), Toast.LENGTH_SHORT).show());
+      }
     }
   }
 }

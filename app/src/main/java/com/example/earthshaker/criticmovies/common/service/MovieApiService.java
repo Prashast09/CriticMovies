@@ -17,6 +17,11 @@ public interface MovieApiService {
   @GET("configuration") Observable<ConfigurationResponse> getConfiguration(
       @Query("api_key") String apiKey);
 
-  @GET("discover/movie") Observable<List<MoviesConfig>> getMovies(@Query("api_key") String apiKey,
+  @GET("discover/movie") Observable<MoviesConfig> getMovies(@Query("api_key") String apiKey,
       @Query("page") Integer page);
+
+  @GET("search/movie") Observable<MoviesConfig> searchMovies(@Query("api_key") String apiKey,
+      @Query("query") String query);
+
+
 }

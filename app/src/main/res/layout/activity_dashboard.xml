@@ -18,9 +18,11 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:layout_scrollFlags="scroll|enterAlways"
         android:background="@color/colorPrimaryDark"
-        />
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:popupTheme="@android:style/Theme.Holo.Light"
+        >
+    </android.support.v7.widget.Toolbar>
     <include layout="@layout/content_dashboard"/>
   </LinearLayout>
 

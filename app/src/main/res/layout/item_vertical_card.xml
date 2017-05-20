@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list_row"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="250dp"
     android:background="?android:attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="vertical"
@@ -10,33 +11,31 @@
     >
   <ImageView
       android:id="@+id/movie_icon"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
+      android:layout_width="150dp"
+      android:layout_height="150dp"
       android:layout_gravity="center"
       android:layout_margin="5dp"
-      android:padding="10dp"
-      android:scaleType="fitCenter"
+      android:scaleType="fitXY"
+      android:src="@mipmap/ic_launcher_round"
       />
   <android.support.v7.widget.AppCompatTextView
       android:id="@+id/movie_title"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="10dp"
+      android:ellipsize="marquee"
+      android:maxLines="1"
+      android:padding="4dp"
       android:textSize="18sp"
-
+      tools:text="Title"
       />
   <android.support.v7.widget.AppCompatTextView
       android:id="@+id/movie_detail"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="10dp"
+      android:layout_height="50dp"
+      android:ellipsize="end"
+      android:maxLines="3"
+      android:padding="4dp"
       android:textSize="12sp"
-      />
-
-  <View
-      android:layout_width="match_parent"
-      android:layout_height="1dp"
-      android:layout_marginTop="5dp"
-      android:background="#eeeeee"
+      tools:text="Description of the movie. Extra long text just to test. lfsldkfjl dsafhj hjsdlf hjlkdsf hlkdsf dslkhf fdsflkhf dslkfhjl fdslkjfds fkasdjfl rewrkj dsflkjfg dflkgj dslfrkg ealkjrhkdsf fdslkfhjld bi dslfhjdsaf vosdf fdslkjfdsf dsflkhdsaflkdsfr kj"
       />
 </LinearLayout>

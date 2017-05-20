@@ -45,6 +45,7 @@ public class DashboardViewHolder {
     tabLayout = (TabLayout) view.findViewById(R.id.tabs);
     viewPager = (ViewPager) view.findViewById(R.id.viewpager);
     setupComponent();
+    registerEventBus();
     setViewPager();
     getMoviesFromServer();
   }
